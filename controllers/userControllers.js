@@ -1,8 +1,10 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import { User } from "../models/User.js";
-
+import ErrorHandler from "../utils/errorHandler.js";
 export const registration = catchAsyncError(async (req, res, next) => {
   const { name, email, password } = req.body;
+  if (!name || !email || !password)
+    return next(new ErrorHandler("Please enter all field", 400));
   // const data = "Registration successfully";
   const data = await User.find();
   res.status(200).json({
