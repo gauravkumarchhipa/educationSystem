@@ -8,8 +8,10 @@ const app = express();
 
 import course from "./routers/courseRoutes.js";
 import user from "./routers/userRoutes.js";
+import ErrorMiddleware from "./middlewares/Error.js";
 
 app.use("/api/v1", course);
 app.use("/api/v1", user);
 
+app.use(ErrorMiddleware);
 export default app;
