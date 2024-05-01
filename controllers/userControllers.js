@@ -1,15 +1,29 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import { User } from "../models/User.js";
 import ErrorHandler from "../utils/errorHandler.js";
+import { sendToken } from "../utils/sendToken.js";
 
 export const registration = catchAsyncError(async (req, res, next) => {
-  const { name, email } = req.body;
-  if (!name || !email) return next(new ErrorHandler("Please enter all field", 400));
-  const data = await User.find();
-  res.status(201).json({
-    success: true,
-    data,
+  const { name, email, password } = req.body;
+
+  if (!name && !email && !password) return next(new ErrorHandler("Please enter name, email & password", 400));
+  if (!name) return next(new ErrorHandler("Please enter name", 400));
+  if (!email) return next(new ErrorHandler("Please enter email", 400));
+  if (!password) return next(new ErrorHandler("Please enter password", 400));
+
+  let user = await User.findOne({ email });
+  if (user) return next(new ErrorHandler("User Already Exist", 409));
+
+  user = await User.create({
+    name,
+    email,
+    password,
+    avatar: {
+      public_id: "temId",
+      url: "tempurl"
+    }
   });
+  sendToken(res, user, "Registration Successfully", 201);
 });
 
 export const login = catchAsyncError(async (req, res, next) => {
